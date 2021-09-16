@@ -1,16 +1,20 @@
 ---
 
-- name: facts | set
+- name: create local facts directory
+  file:
+    path: /etc/ansible/facts.d/
+    state: directory
+    owner: root
+    group: root
+    mode: 0775
+
+- name: define kernel version
   set_fact:
     kernel_version: "{{ ansible_kernel | regex_search('^([0-9]+\\.[0-9]+\\.[0-9]+)') }}"
-  tags:
-    - configuration
-    - ufw
-    - ufw-facts
 
 - block:
     #
-    - name: Import EPEL GPG key.
+    - name: import EPEL GPG key.
       rpm_key:
         key: https://archive.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-{{ ansible_distribution_major_version }}
         state: present
@@ -32,4 +36,27 @@
 - name: update package cache
   package:
     update_cache: true
-    # cache_valid_time: "{{ ufw_update_cache_valid_time | default(3600) }}"
+
+- block:
+    # see:
+    #   https://askubuntu.com/a/1064533/261010
+    #   https://www.spinics.net/lists/netfilter-devel/msg55682.html
+    - name: check if conntrack exists
+      stat:
+        path: /proc/sys/net/netfilter/nf_conntrack_tcp_be_liberal
+      register: _nf_conntrack_tcp_be_liberal
+
+    - name: fix dropped ssh sessions
+      sysctl:
+        name: net.netfilter.nf_conntrack_tcp_be_liberal
+        value: '1'
+        state: present
+        sysctl_set: true
+        reload: true
+      when:
+        - _nf_conntrack_tcp_be_liberal.stat.exists
+  when:
+    - kernel_version is version('4.14', '>=')
+    - kernel_version is version('5', '<')
+
+...

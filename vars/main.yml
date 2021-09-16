@@ -1,4 +1,3 @@
-# vars file for ufw
 ---
 
 ufw_dependencies:
@@ -10,3 +9,18 @@ ufw_facts:
   default_outgoing_policy: "{{ ufw_default_outgoing_policy }}"
   logging: "{{ ufw_logging }}"
   rules: "{{ ufw_rules }}"
+
+ufw_defaults_default:
+  ipv6: false
+  input_policy: DROP
+  output_policy: ACCEPT
+  forward_policy: DROP
+  application_policy: SKIP
+  manage_builtins: false
+  ipt_sysctl: /etc/ufw/sysctl.conf
+  ipt_modules:
+    - nf_conntrack_ftp
+    - nf_nat_ftp
+    - nf_conntrack_netbios_ns
+
+...

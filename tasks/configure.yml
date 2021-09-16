@@ -1,22 +1,12 @@
-# tasks file for ufw
 ---
-- name: configure | re-read facts
+
+- name: re-read facts
   setup:
     gather_subset:
       - 'all'
 #      - 'any'
 
-- name: configure | create (local facts) directory
-  file:
-    path: /etc/ansible/facts.d/
-    state: directory
-    owner: root
-    group: root
-    mode: 0755
-  tags:
-    - ufw-configure-facts
-
-- name: configure | update configuration file(s)
+- name: update configuration file(s)
   template:
     src: "{{ item.src }}"
     dest: "{{ item.dest }}"
@@ -28,18 +18,19 @@
       dest: /etc/default/ufw
     - src: etc/ansible/facts.d/ufw.fact.j2
       dest: /etc/ansible/facts.d/ufw.fact
+  loop_control:
+    label: "{{ item.dest }}"
   register: configuration
-  tags:
-    - ufw-configure-facts
 
-- name: configure | reset   # noqa no-handler
+- name: reset   # noqa no-handler
   ufw:
     state: reset
-  when: configuration is changed
+  when:
+    - configuration is changed
   tags:
     - ufw-configure-reset
 
-- name: configure | default (incoming) policy
+- name: default (incoming) policy
   ufw:
     policy: "{{ ufw_default_incoming_policy }}"
     direction: incoming
@@ -48,7 +39,7 @@
     - ufw-configure-default-policy
     - ufw-configure-default-policy-incoming
 
-- name: configure | default (outgoing) policy
+- name: default (outgoing) policy
   ufw:
     policy: "{{ ufw_default_outgoing_policy }}"
     direction: outgoing
@@ -57,7 +48,7 @@
     - ufw-configure-default-policy
     - ufw-configure-default-policy-outgoing
 
-- name: configure | rules
+- name: rules
   ufw:
     rule: "{{ item.rule }}"
     interface: "{{ item.interface | default('') }}"
@@ -71,13 +62,15 @@
     log: "{{ item.log | default(false) }}"
     comment: "{{ item.comment | default(omit) }}"
   with_items: "{{ ufw_rules }}"
+  loop_control:
+    label: "interface '{{ item.interface | default('') }}', IP '{{ item.from_ip | default('any') }}', Port '{{ item.to_port | default('') }}' -> {{ item.rule }}"
   notify: reload ufw
   tags:
     - ufw-configure-rules
 
-- name: configure | logging
+- name: logging
   ufw:
     logging: "{{ ufw_logging }}"
   notify: reload ufw
-  tags:
-    - ufw-configure-logging
+
+...

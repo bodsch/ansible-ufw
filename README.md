@@ -1,37 +1,63 @@
-## ufw
 
-[![Build Status](https://travis-ci.org/Oefenweb/ansible-ufw.svg?branch=master)](https://travis-ci.org/Oefenweb/ansible-ufw)
-[![Ansible Galaxy](http://img.shields.io/badge/ansible--galaxy-ufw-blue.svg)](https://galaxy.ansible.com/Oefenweb/ufw)
+# Ansible Role:  `ufw`
 
-Set up ufw in Debian-like systems.
+This role is an fork from [Oefenweb](https://github.com/Oefenweb/ansible-ufw)!
 
-#### Requirements
+Installs and configure ufw on various systems.
+
+
+[![GitHub Workflow Status](https://img.shields.io/github/workflow/status/bodsch/ansible-ufw/CI)][ci]
+[![GitHub issues](https://img.shields.io/github/issues/bodsch/ansible-ufw)][issues]
+[![GitHub release (latest by date)](https://img.shields.io/github/v/release/bodsch/ansible-ufw)][releases]
+
+[ci]: https://github.com/bodsch/ansible-ufw/actions
+[issues]: https://github.com/bodsch/ansible-ufw/issues?q=is%3Aopen+is%3Aissue
+[releases]: https://github.com/bodsch/ansible-ufw/releases
+
+## Requirements
 
 None
-
-#### Variables
-
-* `ufw_default_incoming_policy` [default: `deny`]: Default (incoming) policy
-* `ufw_default_outgoing_policy` [default: `allow`]: Default (outgoing) policy
-
-* `ufw_logging` [default: `off`]: Log level
-
-* `ufw_rules` [default: see `defaults/main.yml`]: Rules to apply
-
-* `ufw_etc_default_ipv6` [default: `true`]: Set to yes to apply rules to support IPv6
-* `ufw_etc_default_default_input_policy` [default: `DROP`]: Set the default input policy to `ACCEPT`, `DROP`, or `REJECT`. Please note that if you change this you will most likely want to adjust your rules
-* `ufw_etc_default_default_output_policy` [default: `ACCEPT`]: Set the default output policy to `ACCEPT`, `DROP`, or `REJECT`. Please note that if you change this you will most likely want to adjust your rules
-* `ufw_etc_default_default_forward_policy` [default: `DROP`]: Set the default forward policy to `ACCEPT`, `DROP` or `REJECT`.  Please note that if you change this you will most likely want to adjust your rules
-* `ufw_etc_default_default_application_policy` [default: `SKIP`]: Set the default application policy to `ACCEPT`, `DROP`, `REJECT` or `SKIP`. Please note that setting this to `ACCEPT` may be a security risk
-* `ufw_etc_default_manage_builtins` [default: `false`]: By default, ufw only touches its own chains. Set this to 'yes' to have ufw manage the built-in chains too. Warning: setting this to 'yes' will break non-ufw managed firewall rules
-* `ufw_etc_default_ipt_sysctl` [default: `/etc/ufw/sysctl.conf`]: IPT backend, only enable if using iptables backend
-* `ufw_etc_default_ipt_modules` [default: `[nf_conntrack_ftp, nf_nat_ftp, nf_conntrack_netbios_ns]`]: Extra connection tracking modules to load. Complete list can be found in `net/netfilter/Kconfig` of your kernel source
 
 ## Dependencies
 
 None
 
-#### Example
+## Variables
+
+| variable                                      | default                  | description |
+| :---                                          | : ---                    | :---        |
+| `ufw_default_incoming_policy`                 | `deny`                   | Default (incoming) policy |
+| `ufw_default_outgoing_policy`                 | `allow`                  | Default (outgoing) policy |
+| `ufw_logging`                                 | `low`                    | Log level |
+| `ufw_rules`                                   |  see `defaults/main.yml` | Rules to apply |
+| `ufw_etc_default_ipv6`                        |  `false`                 | Set to yes to apply rules to support IPv6 |
+| `ufw_etc_default_default_input_policy`        |  `DROP`                  | Set the default input policy to `ACCEPT`, `DROP`, or `REJECT`.<br>Please note that if you change this you will most likely want to adjust your rules |
+| `ufw_etc_default_default_output_policy`       |  `ACCEPT`                | Set the default output policy to `ACCEPT`, `DROP`, or `REJECT`.<br>Please note that if you change this you will most likely want to adjust your rules |
+| `ufw_etc_default_default_forward_policy`      |  `DROP`                  | Set the default forward policy to `ACCEPT`, `DROP` or `REJECT`.<br>Please note that if you change this you will most likely want to adjust your rules |
+| `ufw_etc_default_default_application_policy`  |  `SKIP`                  | Set the default application policy to `ACCEPT`, `DROP`, `REJECT` or `SKIP`.<br>Please note that setting this to `ACCEPT` may be a security risk |
+| `ufw_etc_default_manage_builtins`             |  `false`                 | By default, ufw only touches its own chains.<br>Set this to `true` to have ufw manage the built-in chains too.<br>**Warning: setting this to `true` will break non-ufw managed firewall rules** |
+| `ufw_etc_default_ipt_sysctl`                  |  `/etc/ufw/sysctl.conf`  | IPT backend, only enable if using iptables backend |
+| `ufw_etc_default_ipt_modules`                 |  `[]`                    | Extra connection tracking modules to load |
+
+### list your ipt modules
+
+If the kernel sources are installed, you can find a complete list in  `net/netfilter/Kconfig`.
+
+Or you can search in the directory of the installed kernel modules::
+
+```bash
+find /lib/modules/$(uname -r) -type f -name '*.ko*' | awk -F 'netfilter/' '{ print $2}' | cut -d'.' -f1 | sort
+```
+
+As an example, for a simple router, the following modules might be important:
+
+- `nf_conntrack_netlink`
+- `nf_defrag_ipv4`
+- `nf_nat`
+- `nf_reject_ipv4`
+- `xt_MASQUERADE`
+
+## Example
 
 ```yaml
 ---
@@ -40,7 +66,7 @@ None
     - ufw
 ```
 
-##### Allow ssh
+### Allow ssh
 ```yaml
 - hosts: all
   roles:
@@ -53,7 +79,7 @@ None
         comment: 'allow incoming connection on standard ssh port'
 ```
 
-##### Allow all traffic on eth1
+### Allow all traffic on eth1
 ```yaml
 - hosts: all
   roles:
@@ -66,7 +92,7 @@ None
         comment: 'allow all traffic on interface eth1'
 ```
 
-##### Allow snmp traffic from 1.2.3.4 on eth0
+### Allow snmp traffic from 1.2.3.4 on eth0
 ```yaml
 - hosts: all
   roles:
@@ -80,14 +106,12 @@ None
         protocol: udp
 ```
 
-#### License
+## License
 
 MIT
 
-#### Author Information
+## Author Information
 
-Mischa ter Smitten (based on work of weareinteractive)
+- Mischa ter Smitten (based on work of weareinteractive)
+- Bodo Schulz
 
-#### Feedback, bug-reports, requests, ...
-
-Are [welcome](https://github.com/Oefenweb/ansible-ufw/issues)!

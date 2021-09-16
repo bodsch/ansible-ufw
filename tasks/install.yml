@@ -1,11 +1,8 @@
-# tasks file for ufw
 ---
 
-- name: install | dependencies
+- name: install ufw dependencies
   package:
     name: "{{ ufw_dependencies }}"
     state: "{{ apt_install_state | default('present') }}"
-    # update_cache: true
-    # cache_valid_time: "{{ apt_update_cache_valid_time | default(3600) }}"
-  tags:
-    - ufw-install-dependencies
+
+...
