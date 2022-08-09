@@ -23,4 +23,16 @@ ufw_defaults_default:
     - nf_nat_ftp
     - nf_conntrack_netbios_ns
 
+ufw_etc_default_file: /etc/default/ufw
+ufw_etc_ansible_facts_file: /etc/ansible/facts.d/ufw.fact
+
+ufw_etc_ufw_after6_rules_file: /etc/ufw/after6.rules
+ufw_etc_ufw_after_rules_file: /etc/ufw/after.rules
+
+ufw_etc_ufw_before6_rules_file: /etc/ufw/before6.rules
+ufw_etc_ufw_before_rules_file: /etc/ufw/before.rules
+
+ufw_etc_ufw_user6_rules_file: /etc/ufw/user6.rules
+ufw_etc_ufw_user_rules_file: /etc/ufw/user.rules
+
 ...

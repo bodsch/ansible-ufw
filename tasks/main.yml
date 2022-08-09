@@ -2,7 +2,7 @@
 
 - include_tasks: prepare.yaml
 
-- include: install.yml
+- include_tasks: install.yml
   tags:
     - configuration
     - ufw
