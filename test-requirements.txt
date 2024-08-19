@@ -1,10 +1,10 @@
 ansible-lint
 docker
+dnspython
 flake8
 molecule
-molecule-docker
+molecule-plugins[docker]
 netaddr
-pytest
 pytest-testinfra
 tox
 tox-gh-actions

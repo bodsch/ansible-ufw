@@ -2,7 +2,6 @@
 ---
 galaxy_info:
   role_name: ufw
-  namespace: oefenweb
   author: Mischa ter Smitten
   company: Oefenweb.nl B.V.
   description: Set up ufw in Debian-like systems
